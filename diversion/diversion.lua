@@ -36,8 +36,8 @@ local doredirect = function(info)
     return dolog(ok, err, info)
 end
 
-local setKeepalive = function(red) 
-    local ok, err = red:keepalivedb()  
+local setKeepalive = function(rc, redis)
+    local ok, err = rc:keepalivedb(redis)
     if not ok then
         local errinfo = ERRORINFO.REDIS_KEEPALIVE_ERROR
         local errdesc = err
@@ -80,18 +80,30 @@ local getUpstream = function(runtime, database, userInfo)
     return upstream
 end
 
-local connectdb = function(red, redisConf)
+local connectdb = function(rc, red)
+    local err
     if not red then
-        red = redisModule:new(redisConf)
+        red, err = rc:connectdb()
+        if err then
+            local info = ERRORINFO.REDIS_CONNECT_ERROR
+            dolog(info, err)
+            return false, err
+        else
+            return true,red
+        end
     end
     local ok, err = red:connectdb()
     if not ok then
-        local info = ERRORINFO.REDIS_CONNECT_ERROR
-        dolog(info, err)
-        return false, err
+        red, err = rc:connectdb()
+        if err then
+            local info = ERRORINFO.REDIS_CONNECT_ERROR
+            dolog(info, err)
+            return false, err
+        else
+            return true,red
+        end
     end
-
-    return ok, red
+    return true, red
 end
 
 local hostname = getHost()
@@ -104,7 +116,9 @@ end
 
 local log = logmod:new(hostname)
 
-local red = redisModule:new(redisConf)
+local rc = redisModule.new(redisConf)
+
+local red
 
 -- getRuntimeInfo from cache or db
 local pfunc = function()
@@ -152,20 +166,19 @@ local pfunc = function()
     end
 
     -- step 4: fetch from redis
-    local ok, db = connectdb(red, redisConf)
-    if not ok then 
+    local ok, db = connectdb(rc, red)
+    if not ok then
         if sem then sema:post(1) end
 		return ok, db
     end
 
-    local database      = db.redis
-    local runtimeInfo   = getRuntime(database, hostname)
+    local runtimeInfo   = getRuntime(db, hostname)
 
     local divsteps		= runtimeInfo.divsteps
     local runtimegroup	= runtimeInfo.runtimegroup
 
     runtimeCache:setRuntime(hostname, divsteps, runtimegroup)
-    if red then setKeepalive(red) end
+    if red then setKeepalive(rc, red) end
 
     if sem then sema:post(1) end
     return true, divsteps, runtimegroup
@@ -290,12 +303,11 @@ local pfunc = function()
     end
 
     -- step 4: fetch from redis
-    local ok, db = connectdb(red, redisConf)
+    local ok, db = connectdb(rc, red)
     if not ok then
         if sem then upsSema:post(1) end
 		return nil, db
     end
-    local database = db.redis
 
     for i = 1, divsteps do
         local idx = indices[i]
@@ -303,13 +315,13 @@ local pfunc = function()
         local info = usertable[idx]
 
         if info then
-            local upstream = getUpstream(runtime, database, info)
+            local upstream = getUpstream(runtime, db, info)
             if not upstream then
                 upstreamCache:setUpstream(info, -1)
 				log:debug('fetch userinfo [', info, '] from db, get [nil]')
             else
                 if sem then upsSema:post(1) end
-                if red then setKeepalive(red) end
+                if red then setKeepalive(rc, red) end
 
                 upstreamCache:setUpstream(info, upstream)
 				log:debug('fetch userinfo [', info, '] from db, get [', upstream, ']')
@@ -322,7 +334,7 @@ local pfunc = function()
     end
 
     if sem then upsSema:post(1) end
-    if red then setKeepalive(red) end
+    if red then setKeepalive(rc, red) end
     return nil, 'the req has no target upstream'
 end
 

@@ -153,7 +153,7 @@ _M.checkPolicy = function(option)
     end
 
     local pfunc = function()
-        local policyGroupMod = policyGroupModule:new(db.redis,
+        local policyGroupMod = policyGroupModule:new(db,
                                         policyGroupLib, policyLib)
         return policyGroupMod:check(policyGroup)
     end
@@ -200,7 +200,7 @@ _M.set = function(option)
     end
 
     local pfunc = function()
-        local policyGroupMod = policyGroupModule:new(db.redis,
+        local policyGroupMod = policyGroupModule:new(db,
                                         policyGroupLib, policyLib)
         return policyGroupMod:set(policyGroup)
     end
@@ -226,7 +226,7 @@ _M.get = function(option)
     end
 
     local pfunc = function()
-        local policyGroupMod = policyGroupModule:new(db.redis,
+        local policyGroupMod = policyGroupModule:new(db,
                                         policyGroupLib, policyLib)
         return policyGroupMod:get(policyGroupId)
     end
@@ -251,7 +251,7 @@ _M.del = function(option)
     end
 
     local pfunc = function()
-        local policyGroupMod = policyGroupModule:new(db.redis,
+        local policyGroupMod = policyGroupModule:new(db,
                                         policyGroupLib, policyLib)
         return policyGroupMod:del(policyGroupId)
     end

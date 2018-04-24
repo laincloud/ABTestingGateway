@@ -55,9 +55,9 @@ local do_action_error = function()
     return
 end
 
-local red = redisModule:new(redisConf)
-local ok, err = red:connectdb()
-if not ok then
+local rc = redisModule.new(redisConf)
+local red, err = rc:connectdb()
+if err then
     local info = ERRORINFO.REDIS_CONNECT_ERROR
     local response = doresp(info, err)
     dolog(info, desc)

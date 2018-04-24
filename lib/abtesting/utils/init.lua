@@ -4,13 +4,18 @@ local _M = {}
 _M._VERSION = '0.0.1'
 
 _M.redisConf = {
-    ["uds"]      = ngx.var.redis_uds   ,
-    ["host"]     = ngx.var.redis_host,
-    ["port"]     = ngx.var.redis_port,
-    ["poolsize"] = ngx.var.redis_pool_size,
-    ["idletime"] = ngx.var.redis_keepalive_timeout , 
-    ["timeout"]  = ngx.var.redis_connect_timeout,
-    ["dbid"]     = ngx.var.redis_dbid,
+    ["timeout"]         = ngx.var.redis_connect_timeout,
+    ["readtimeout"]     = ngx.var.redis_read_timeout,
+    ["idletime"]        = ngx.var.redis_keepalive_timeout,
+    ["poolsize"]        = ngx.var.redis_pool_size,
+    ["host"]            = ngx.var.redis_host,
+    ["port"]            = ngx.var.redis_port,
+    ["uds"]             = ngx.var.redis_uds,
+    ["password"]        = ngx.var.redis_password,
+    ["dbid"]            = ngx.var.redis_dbid,
+    ["mastername"]      = ngx.var.redis_master_name,
+    ["role"]            = ngx.var.redis_role,
+    ["sentinel"]        = ngx.var.redis_sentinel,
 }
 
 _M.divtypes = {

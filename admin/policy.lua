@@ -104,7 +104,7 @@ _M.check = function(option)
     end
 
     local pfunc = function() 
-        local policyMod = policyModule:new(db.redis, policyLib)
+        local policyMod = policyModule:new(db, policyLib)
         return policyMod:check(policy)
     end
 
@@ -141,7 +141,7 @@ _M.set = function(option)
     end
 
     local pfunc = function() 
-        policyMod = policyModule:new(db.redis, policyLib)
+        policyMod = policyModule:new(db, policyLib)
         return policyMod:check(policy)
     end
 
@@ -191,7 +191,7 @@ _M.del = function(option)
     end
 
     local pfunc = function()
-        local policyMod = policyModule:new(db.redis, policyLib) 
+        local policyMod = policyModule:new(db, policyLib)
         return policyMod:del(policyId)
     end
 
@@ -215,7 +215,7 @@ _M.get = function(option)
     end
 
     local pfunc = function()
-        local policyIO = policyModule:new(db.redis, policyLib) 
+        local policyIO = policyModule:new(db, policyLib)
         return policyIO:get(policyId)
     end
 

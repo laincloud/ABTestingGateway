@@ -57,7 +57,6 @@ end
 
 _M.get = function(option)
     local db = option.db
-    local database = db.redis
 
     local hostname = getHostName()
     if not hostname or string.len(hostname) < 1 or hostname == ngx.null then
@@ -70,7 +69,7 @@ _M.get = function(option)
     end
 
     local pfunc = function()
-        local runtimeGroupMod = runtimeGroupModule:new(database, runtimeLib)
+        local runtimeGroupMod = runtimeGroupModule:new(db, runtimeLib)
         return runtimeGroupMod:get(hostname)
     end
     local status, info = xpcall(pfunc, handler)
@@ -87,7 +86,6 @@ end
 
 _M.del = function(option)
     local db = option.db
-    local database = db.redis
 
     local hostname = getHostName()
     if not hostname or string.len(hostname) < 1 or hostname == ngx.null then
@@ -100,7 +98,7 @@ _M.del = function(option)
     end
 
     local pfunc = function()
-        local runtimeGroupMod = runtimeGroupModule:new(database, runtimeLib)
+        local runtimeGroupMod = runtimeGroupModule:new(db, runtimeLib)
         return runtimeGroupMod:del(hostname)
     end
     local status, info = xpcall(pfunc, handler)
@@ -135,7 +133,6 @@ end
 
 _M.groupset = function(option, policyGroupId)
     local db = option.db
-    local database = db.redis
 
     local hostname = getHostName()
     local divsteps = getDivSteps()
@@ -150,7 +147,7 @@ _M.groupset = function(option, policyGroupId)
     end
 
     local pfunc = function()
-        local runtimeGroupMod = runtimeGroupModule:new(database, runtimeLib)
+        local runtimeGroupMod = runtimeGroupModule:new(db, runtimeLib)
         runtimeGroupMod:del(hostname)
         return runtimeGroupMod:set(hostname, policyGroupId, divsteps)
     end
@@ -169,7 +166,6 @@ end
 
 _M.runtimeset = function(option, policyId)
     local db = option.db
-    local database = db.redis
 
     local hostname = getHostName()
     local divsteps = 1
@@ -184,7 +180,7 @@ _M.runtimeset = function(option, policyId)
     end
 
     local pfunc = function()
-        local runtimeGroupMod = runtimeGroupModule:new(database, runtimeLib)
+        local runtimeGroupMod = runtimeGroupModule:new(db, runtimeLib)
         return runtimeGroupMod:del(hostname)
     end
     local status, info = xpcall(pfunc, handler)
